@@ -7,14 +7,23 @@
 </head>
 <body>
     <h1>Posts</h1>
+
+    {% extends 'base.html' %}
+    
+    {% block title %}Home{% endblock %}
+    
+    {% block content %}
+    <h1>Posts</h1>
     
     {% for post in posts %}
     <hr>
-    <h2>{{ post.title }}</h2>
+    <h3>{{ post.title }}</h3>
     <p>{{ post.content }}</p>
     <small>{{ post.created_at }}</small>
     {% empty %}
     <p>ยังไม่มีข้อมูล</p>
     {% endfor %}
+    {% endblock %}
+
 </body>
 </html>
