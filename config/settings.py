@@ -18,6 +18,22 @@ import os
 # from dotenv import load_dotenv
 from urllib.parse import urlparse, parse_qsl
 
+# import os
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT", "5432"),
+        "OPTIONS": {
+            "sslmode": "require",
+        },
+    }
+}
+
 # load_dotenv()
 
 # Replace the DATABASES section of your settings.py with this
