@@ -16,11 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from training.views import debug_db
+# from training.views import debug_db # ส่วนนี้ใช้สำหรับ debug ว่าเชื่อมกับ database postgresql หรือยัง
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     # path("", include("core.urls")),
     path('', include('training.urls')),
-    path("debug-db/", debug_db),
+    # path("debug-db/", debug_db), # ส่วนนี้ใช้สำหรับ debug ว่าเชื่อมกับ database postgresql หรือยัง
 ]

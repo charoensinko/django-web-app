@@ -33,6 +33,7 @@ DATABASES = {
         },
         "DISABLE_SERVER_SIDE_CURSORS": True,
     },
+    # ใช้ส่วนนี้ ตอนที่เพิ่มข้อมูลจาก sqlite ไปฐานข้อมูล postgresql บน Neon
     # "sqlite_old": {
     #     "ENGINE": "django.db.backends.sqlite3",
     #     "NAME": BASE_DIR / "db.sqlite3",
