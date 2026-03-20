@@ -6,3 +6,6 @@ db.sqlite3
 .vscode/
 .DS_Store
 staticfiles/
+export_training_utf8.py
+training_data.json
+training_data_utf8.json
