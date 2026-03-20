@@ -6,9 +6,9 @@ class TrainingRecord(models.Model):
     STATUS_PENDING = "รอผล"
 
     STATUS_CHOICES = [
-        (STATUS_PASS, "ผ่าน"),
-        (STATUS_FAIL, "ไม่ผ่าน"),
-        (STATUS_PENDING, "รอผล"),
+        (STATUS_PASS, "✅ ผ่าน"),
+        (STATUS_FAIL, "❌ ไม่ผ่าน"),
+        (STATUS_PENDING, "⏳ รอผล"),
     ]
 
     emp_name = models.CharField(max_length=255, verbose_name="ชื่อพนักงาน")

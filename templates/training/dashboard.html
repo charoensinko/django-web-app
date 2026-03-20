@@ -1,204 +1,274 @@
 {% extends 'base.html' %}
-{% load static %}
 
 {% block title %}ระบบบันทึกการฝึกอบรมพนักงาน{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <!-- HEADER -->
-    <header class="app-header">
-        <div class="logo-icon"><i class="bi bi-mortarboard-fill" style="color:#fff"></i></div>
-        <div>
-            <h1>ระบบบันทึกการฝึกอบรมพนักงาน</h1>
-            <small>Employee Training Management System</small>
-        </div>
-        <span class="header-badge"><i class="bi bi-circle-fill" style="font-size:8px;color:var(--green)"></i> ONLINE</span>
-    </header>
-    {% if messages %}
+{% if messages %}
+<div class="alert-stack">
     {% for message in messages %}
-    <div class="alert alert-{{ message.tags|default:'info' }} mt-3">
+    <div class="alert-custom {% if message.tags == 'success' %}success{% else %}error{% endif %}">
         {{ message }}
     </div>
     {% endfor %}
-    {% endif %}
+</div>
+{% endif %}
 
-    <div class="row g-4 mt-1">
-        <!-- LEFT: FORM -->
-        <div class="col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    {% if edit_obj %}แก้ไขข้อมูล{% else %}บันทึกข้อมูลใหม่{% endif %}
+<div class="main-wrap">
+
+    <!-- LEFT: FORM -->
+    <div>
+        <div class="card-dark">
+            <div class="card-header-dark">
+                <i class="bi {% if edit_obj %}bi-pencil-square{% else %}bi-plus-circle-fill{% endif %} icon"></i>
+                {% if edit_obj %}แก้ไขข้อมูล{% else %}บันทึกข้อมูลใหม่{% endif %}
+            </div>
+
+            {% if edit_obj %}
+            <div class="card-body-dark" style="padding-bottom:10px">
+                <div class="edit-mode-banner">
+                    <i class="bi bi-pencil-fill"></i>
+                    กำลังแก้ไขข้อมูล ID #{{ edit_obj.id }} — {{ edit_obj.emp_name }}
                 </div>
-                <div class="card-body">
-                    {% if edit_obj %}
-                    <div class="alert alert-warning">
-                        กำลังแก้ไขข้อมูล ID #{{ edit_obj.id }} — {{ edit_obj.emp_name }}
-                    </div>
-                    {% endif %}
+            </div>
+            {% endif %}
 
-                    <form method="post"
-                        action="{% if edit_obj %}{% url 'training:edit' edit_obj.id %}{% else %}{% url 'training:add' %}{% endif %}">
-                        {% csrf_token %}
+            <div class="card-body-dark">
+                <form method="post"
+                    action="{% if edit_obj %}{% url 'training:edit' edit_obj.id %}{% else %}{% url 'training:add' %}{% endif %}"
+                    class="form-section">
+                    {% csrf_token %}
 
-                        {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {{ form.non_field_errors }}
-                        </div>
-                        {% endif %}
-
-                        <div class="mb-3">
-                            <label class="form-label">ชื่อพนักงาน</label>
+                    <div class="field-row">
+                        <div class="field-group">
+                            <label><i class="bi bi-person"></i> ชื่อพนักงาน</label>
                             {{ form.emp_name }}
                             {{ form.emp_name.errors }}
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">รหัสพนักงาน</label>
+                        <div class="field-group">
+                            <label><i class="bi bi-credit-card"></i> รหัสพนักงาน</label>
                             {{ form.emp_id }}
                             {{ form.emp_id.errors }}
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">ชื่อหลักสูตร</label>
-                            {{ form.course }}
-                            {{ form.course.errors }}
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">วิทยากร / ผู้สอน</label>
-                            {{ form.trainer }}
-                            {{ form.trainer.errors }}
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">วันที่อบรม</label>
-                                {{ form.train_date }}
-                                {{ form.train_date.errors }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">คะแนน</label>
-                                {{ form.score }}
-                                {{ form.score.errors }}
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">สถานะ</label>
-                            {{ form.status }}
-                            {{ form.status.errors }}
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100">
-                            {% if edit_obj %}บันทึกการแก้ไข{% else %}บันทึกข้อมูล{% endif %}
-                        </button>
-
-                        {% if edit_obj %}
-                        <a href="{% url 'training:dashboard' %}" class="btn btn-outline-secondary w-100 mt-2">
-                            ยกเลิก
-                        </a>
-                        {% endif %}
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- RIGHT: TABLE + HISTORY -->
-        <div class="col-lg-8">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header d-flex justify-content-between">
-                    <span>รายการข้อมูลการฝึกอบรม</span>
-                    <span>{{ total_count }} รายการ</span>
-                </div>
-
-                <div class="card-body border-bottom">
-                    <div class="d-flex gap-3 flex-wrap">
-                        <span class="badge bg-primary">ทั้งหมด {{ total_count }}</span>
-                        <span class="badge bg-success">ผ่าน {{ pass_count }}</span>
-                        <span class="badge bg-danger">ไม่ผ่าน {{ fail_count }}</span>
                     </div>
-                </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>พนักงาน</th>
-                                <th>หลักสูตร</th>
-                                <th>วิทยากร</th>
-                                <th>วันที่</th>
-                                <th>คะแนน</th>
-                                <th>สถานะ</th>
-                                <th>จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for record in records %}
-                            <tr>
-                                <td>#{{ record.id }}</td>
-                                <td>
-                                    <strong>{{ record.emp_name }}</strong><br>
-                                    <small class="text-muted">{{ record.emp_id }}</small>
-                                </td>
-                                <td>{{ record.course }}</td>
-                                <td>{{ record.trainer|default:"—" }}</td>
-                                <td>{{ record.train_date|date:"Y-m-d" }}</td>
-                                <td>{{ record.score|default_if_none:"—" }}</td>
-                                <td>
-                                    {% if record.status == "ผ่าน" %}
-                                    <span class="badge bg-success">ผ่าน</span>
-                                    {% elif record.status == "ไม่ผ่าน" %}
-                                    <span class="badge bg-danger">ไม่ผ่าน</span>
-                                    {% else %}
-                                    <span class="badge bg-warning text-dark">รอผล</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a href="{% url 'training:dashboard' %}?edit={{ record.id }}"
-                                        class="btn btn-sm btn-outline-primary">
-                                        แก้ไข
-                                    </a>
-                                    <form method="post" action="{% url 'training:delete' record.id %}" class="d-inline"
-                                        onsubmit="return confirm('ยืนยันการลบข้อมูล #{{ record.id }} ?');">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                                            ลบ
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="8" class="text-center text-muted py-4">
-                                    ยังไม่มีข้อมูล — กรุณาเพิ่มรายการจากฟอร์มด้านซ้าย
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    ประวัติการดำเนินการล่าสุด 50 รายการ
-                </div>
-                <div class="card-body">
-                    {% for h in histories %}
-                    <div class="border-bottom pb-2 mb-2">
-                        <div>
-                            <strong>{{ h.action }}ข้อมูล</strong>
-                        </div>
-                        <div>{{ h.detail }}</div>
-                        <small class="text-muted">{{ h.timestamp|date:"Y-m-d H:i:s" }}</small>
+                    <div class="field-group">
+                        <label><i class="bi bi-journal-bookmark"></i> ชื่อหลักสูตร</label>
+                        {{ form.course }}
+                        {{ form.course.errors }}
                     </div>
-                    {% empty %}
-                    <p class="text-muted mb-0">ยังไม่มีประวัติการดำเนินการ</p>
-                    {% endfor %}
-                </div>
+
+                    <div class="field-group">
+                        <label><i class="bi bi-person-workspace"></i> วิทยากร / ผู้สอน</label>
+                        {{ form.trainer }}
+                        {{ form.trainer.errors }}
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field-group">
+                            <label><i class="bi bi-calendar3"></i> วันที่อบรม</label>
+                            {{ form.train_date }}
+                            {{ form.train_date.errors }}
+                        </div>
+                        <div class="field-group">
+                            <label><i class="bi bi-bar-chart"></i> คะแนน</label>
+                            {{ form.score }}
+                            {{ form.score.errors }}
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label><i class="bi bi-check2-circle"></i> สถานะ</label>
+                        {{ form.status }}
+                        {{ form.status.errors }}
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="bi {% if edit_obj %}bi-check-circle{% else %}bi-floppy2-fill{% endif %}"></i>
+                        {% if edit_obj %}บันทึกการแก้ไข{% else %}บันทึกข้อมูล{% endif %}
+                    </button>
+
+                    {% if edit_obj %}
+                    <a href="{% url 'training:dashboard' %}" class="btn-cancel">
+                        <i class="bi bi-x-circle"></i> ยกเลิก
+                    </a>
+                    {% endif %}
+                </form>
+
             </div>
         </div>
     </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
+
+        <!-- TABLE CARD -->
+        <div class="card-dark">
+            <div class="card-header-dark">
+                <i class="bi bi-table icon"></i> รายการข้อมูลการฝึกอบรม
+                <span style="margin-left:auto;font-size:11px;color:var(--text-3);font-family:var(--mono)">
+                    {{ total_count }} รายการ
+                </span>
+            </div>
+
+            <div class="stat-row">
+                <div class="stat-chip total">
+                    <div>
+                        <div class="val">{{ total_count }}</div>
+                        <div>ทั้งหมด</div>
+                    </div>
+                </div>
+                <div class="stat-chip pass">
+                    <div>
+                        <div class="val">{{ pass_count }}</div>
+                        <div>ผ่าน</div>
+                    </div>
+                </div>
+                <div class="stat-chip fail">
+                    <div>
+                        <div class="val">{{ fail_count }}</div>
+                        <div>ไม่ผ่าน</div>
+                    </div>
+                </div>
+            </div>
+
+            {% if records %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>พนักงาน</th>
+                            <th>หลักสูตร</th>
+                            <th>วิทยากร</th>
+                            <th>วันที่</th>
+                            <th>คะแนน</th>
+                            <th>สถานะ</th>
+                            <th>จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in records %}
+                        <tr>
+                            <td class="td-id">#{{ record.id }}</td>
+                            <td>
+                                <div class="td-name">{{ record.emp_name }}</div>
+                                <div class="td-empid">{{ record.emp_id }}</div>
+                            </td>
+                            <td>{{ record.course }}</td>
+                            <td class="text-dim">{{ record.trainer|default:"—" }}</td>
+                            <td class="mono text-dim" style="font-size:12px">{{ record.train_date|date:"Y-m-d" }}</td>
+                            <td class="mono" style="font-weight:600">
+                                {{ record.score|default_if_none:"—" }}
+                            </td>
+                            <td>
+                                {% if record.status == "ผ่าน" %}
+                                <span class="badge-status badge-pass">
+                                    <i class="bi bi-check-circle-fill"></i> ผ่าน
+                                </span>
+                                {% elif record.status == "ไม่ผ่าน" %}
+                                <span class="badge-status badge-fail">
+                                    <i class="bi bi-x-circle-fill"></i> ไม่ผ่าน
+                                </span>
+                                {% else %}
+                                <span class="badge-status badge-pending">
+                                    <i class="bi bi-clock-fill"></i> รอผล
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div style="display:flex;gap:6px">
+                                    <a href="{% url 'training:dashboard' %}?edit={{ record.id }}"
+                                        class="btn-action edit" title="แก้ไข">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
+
+                                    <form action="{% url 'training:delete' record.id %}" method="post"
+                                        style="display:inline"
+                                        onsubmit="return confirm('ยืนยันการลบข้อมูล #{{ record.id }} ?')">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-action del" title="ลบ">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>ยังไม่มีข้อมูล — กรุณาเพิ่มรายการจากฟอร์มด้านซ้าย</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- HISTORY CARD -->
+        <div class="card-dark">
+            <div class="card-header-dark">
+                <i class="bi bi-clock-history icon"></i> ประวัติการดำเนินการ
+                <span style="margin-left:auto;font-size:11px;color:var(--text-3)">ล่าสุด 50 รายการ</span>
+            </div>
+
+            <div class="card-body-dark">
+                {% if histories %}
+                <div class="history-list">
+                    {% for h in histories %}
+                    <div class="hist-item">
+                        <div
+                            class="hist-dot {% if h.action == 'เพิ่ม' %}add{% elif h.action == 'แก้ไข' %}edit{% else %}del{% endif %}">
+                            <i
+                                class="bi {% if h.action == 'เพิ่ม' %}bi-plus-lg{% elif h.action == 'แก้ไข' %}bi-pencil{% else %}bi-trash3{% endif %}"></i>
+                        </div>
+                        <div>
+                            <div
+                                class="hist-action-label {% if h.action == 'เพิ่ม' %}hist-action-add{% elif h.action == 'แก้ไข' %}hist-action-edit{% else %}hist-action-del{% endif %}">
+                                {{ h.action }}ข้อมูล
+                            </div>
+                            <div class="hist-detail">{{ h.detail }}</div>
+                            <div class="hist-time">
+                                <i class="bi bi-clock"></i> {{ h.timestamp|date:"Y-m-d H:i:s" }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state" style="padding:24px">
+                    <i class="bi bi-clock-history" style="font-size:28px"></i>
+                    <p>ยังไม่มีประวัติการดำเนินการ</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const hl = document.querySelector('.history-list');
+    if (hl) hl.scrollTop = 0;
+
+    const url = new URL(window.location.href);
+    const editId = url.searchParams.get('edit');
+
+    if (editId) {
+        document.querySelectorAll('tbody tr').forEach(tr => {
+            const idCell = tr.querySelector('.td-id');
+            if (idCell && idCell.textContent.trim() === '#' + editId) {
+                tr.style.background = 'rgba(247,201,79,.08)';
+                tr.style.borderLeft = '3px solid var(--yellow)';
+            }
+        });
+
+        const formCard = document.querySelector('.card-dark');
+        if (formCard) {
+            formCard.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+</script>
 {% endblock %}
