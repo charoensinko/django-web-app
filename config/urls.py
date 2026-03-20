@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from config.settings import debug_db
+from training.views import debug_db
 
 urlpatterns = [
     path("admin/", admin.site.urls),

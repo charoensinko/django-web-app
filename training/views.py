@@ -4,6 +4,24 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .forms import TrainingRecordForm
 from .models import HistoryLog, TrainingRecord
 
+from django.http import HttpResponse
+from django.db import connection
+from training.models import TrainingRecord
+from django.contrib.auth import get_user_model
+
+def debug_db(request):
+    User = get_user_model()
+    info = connection.settings_dict
+    text = f"""
+ENGINE: {info.get('ENGINE')}
+NAME: {info.get('NAME')}
+HOST: {info.get('HOST')}
+PORT: {info.get('PORT')}
+
+TrainingRecord count: {TrainingRecord.objects.count()}
+User count: {User.objects.count()}
+"""
+    return HttpResponse(text, content_type="text/plain")
 
 def build_dashboard_context(form=None, edit_obj=None):
     records = TrainingRecord.objects.all()
