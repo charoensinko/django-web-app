@@ -16,9 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from config.settings import debug_db
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     # path("", include("core.urls")),
     path('', include('training.urls')),
+    path("debug-db/", debug_db),
 ]

@@ -3,6 +3,25 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+from django.http import HttpResponse
+from django.db import connection
+from training.models import TrainingRecord
+from django.contrib.auth import get_user_model
+
+def debug_db(request):
+    User = get_user_model()
+    info = connection.settings_dict
+    text = f"""
+ENGINE: {info.get('ENGINE')}
+NAME: {info.get('NAME')}
+HOST: {info.get('HOST')}
+PORT: {info.get('PORT')}
+
+TrainingRecord count: {TrainingRecord.objects.count()}
+User count: {User.objects.count()}
+"""
+    return HttpResponse(text, content_type="text/plain")
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 load_dotenv(BASE_DIR / ".env")
 
