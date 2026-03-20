@@ -3,7 +3,7 @@ import os
 
 DEBUG = False
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+ALLOWED_HOSTS = [h for h in os.getenv("ALLOWED_HOSTS", "").split(",") if h]
 
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
